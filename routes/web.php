@@ -5,27 +5,6 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\TugasController;
 use App\Models\Tugas;
-use Illuminate\Support\Facades\Http;
-
-Route::get('/cek-key', function () {
-    dd(env('GEMINI_API_KEY'));
-
-
-    $response = Http::withHeaders([
-    'Content-Type' => 'application/json',
-])->post(
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . env('GEMINI_API_KEY'),
-    );
-
-    foreach ($response->json()['models'] as $model) {
-        echo $model['name'] . '<br>';
-    }
-});
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
 
 Route::get('/', function () {
     return redirect('/login');
@@ -83,7 +62,9 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+});
 
+Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/tugas', [TugasController::class, 'indexAdmin'])
         ->name('admin.tugas.index');
 

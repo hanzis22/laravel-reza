@@ -11,6 +11,12 @@ class TugasController extends Controller
 {
     public function store(Request $request)
     {
+       $request->validate([
+           'judul' => 'required|string|max:255',
+           'minggu' => 'required|integer|min:1|max:4',
+           'file' => 'required|file|mimes:pdf|max:5120',
+       ]);
+
        $file = $request->file('file');
 
 $namaFile = time().'_'.$file->getClientOriginalName();
@@ -45,7 +51,16 @@ return redirect('/peserta/upload')
 
     public function updateStatus(Request $request, $id)
 {
+    if (auth()->user()->role !== 'admin') {
+        abort(403, 'Unauthorized.');
+    }
+
     $tugas = Tugas::findOrFail($id);
+
+    $request->validate([
+        'status' => 'required|string|in:Belum Diperiksa,Revisi,Selesai',
+        'komentar' => 'nullable|string|max:1000',
+    ]);
 
     $tugas->update([
         'status' => $request->status,
@@ -59,6 +74,10 @@ return redirect('/peserta/upload')
 
 public function simpanKomentar(Request $request, $id)
 {
+    if (auth()->user()->role !== 'admin') {
+        abort(403, 'Unauthorized.');
+    }
+
     $request->validate([
         'komentar' => 'required|string|max:1000',
     ]);
@@ -76,6 +95,10 @@ public function simpanKomentar(Request $request, $id)
 
 public function download($id)
 {
+    if (auth()->user()->role !== 'admin') {
+        abort(403, 'Unauthorized.');
+    }
+
     $tugas = Tugas::findOrFail($id);
 
     return Storage::disk('public')
@@ -85,6 +108,10 @@ public function download($id)
 }
 public function analisisAI($id)
 {
+    if (auth()->user()->role !== 'admin') {
+        abort(403, 'Unauthorized.');
+    }
+
     $tugas = Tugas::findOrFail($id);
 
     $filePath = storage_path(
