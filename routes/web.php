@@ -81,7 +81,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get(
     '/admin/tugas/{id}/analisis-ai',
     [TugasController::class, 'analisisAI']
-)->name('admin.tugas.ai');
+)->name('admin.tugas.ai')->middleware('throttle:5,1');
 });
 
 require __DIR__.'/auth.php';
